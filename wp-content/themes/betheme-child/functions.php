@@ -49,3 +49,16 @@ function mfnch_textdomain()
 	load_child_theme_textdomain('mfn-opts', get_stylesheet_directory() . '/languages');
 }
 add_action('after_setup_theme', 'mfnch_textdomain');
+
+
+/**
+ * Han-Custom
+ */
+
+require_once __DIR__ . "/custom-function.php";
+
+add_filter('upload_mimes', 'wpjam_upload_mimes');
+function wpjam_upload_mimes($mimes = array()) {
+    $mimes['svg'] = 'image/svg+xml';
+    return $mimes;
+}
