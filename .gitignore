@@ -7,3 +7,4 @@
 .idea/codeStyles/codeStyleConfig.xml
 .idea/inspectionProfiles/Project_Default.xml
 .idea/jsLinters/jshint.xml
+wp-content/uploads/*
