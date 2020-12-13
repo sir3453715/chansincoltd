@@ -93,7 +93,18 @@ $table_prefix = 'wp_';
  *
  * @link https://wordpress.org/support/article/debugging-in-wordpress/
  */
-define( 'WP_DEBUG', false );
+
+/**
+ * 開發人員用： WordPress 偵錯模式。
+ */
+/** 開啟WordPress偵錯功能 */
+define('WP_DEBUG', true);
+/** 產生錯誤記錄檔，產生於wp-content/debug.log */
+define('WP_DEBUG_LOG', true );
+/** 顯示錯誤訊息於html上 */
+define('WP_DEBUG_DISPLAY', false );
+/** 腳本偵錯功能，如設為true，則載入非minified的js */
+define('SCRIPT_DEBUG', false );
 
 /* That's all, stop editing! Happy publishing. */
 
