@@ -47,6 +47,11 @@ class customCustom
          */
         add_action('wp_enqueue_scripts', array($this, 'load_global_js_files'), 100);
         /**
+         * 載入其他JS或CSS檔案
+         */
+        // add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+
+        /**
          * 移除後台post列表頁不必要的欄位
          */
         add_action('admin_head', array($this, 'remove_unused_columns'));
@@ -248,6 +253,15 @@ class customCustom
         }
     }
 
+    // /**
+    //  * 載入其他JS或CSS檔案
+    //  * @hooked wp_enqueue_scripts
+    //  */
+    // public function enqueue_scripts()
+    // {
+    //     wp_register_script('custom-lib-js-lodash', LIT_URL . '/assets/js/libs/lodash.js');
+    //     wp_enqueue_script('custom-lib-js-lodash');
+    // }
 
 }
 $GLOBALS['customCustom'] = customCustom::get_instance();
