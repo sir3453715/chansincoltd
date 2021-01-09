@@ -59,12 +59,109 @@ class customCustom
          * 移除admin bar的wordpress logo
          */
         add_action('admin_bar_menu', array($this, 'remove_admin_bar_wordpress_logo'), 999);
+        /**
+         * 後台文章資料擴充
+         */
+        add_action( 'init', [$this,'customer_post_taxonomy'], 0 );//自定義分類
+        add_action( 'add_meta_boxes', [$this, 'add_meta_boxes' ] ,20); //在後台編輯頁面增加設定的欄位
+        add_action( 'save_post', [$this, 'save_data_for_custome_data'],1,2); //儲存post增加欄位
 
         /**
          * Other
          */
 
+        add_action('yith_wcwl_before_wishlist',[$this,'add_export_form_wishlist']);//前台增加匯出按鈕
+        add_action('yith_wcwl_before_wishlist_form',[$this,'create_export_wishlist_file']);//產生匯出檔案
+
     }
+    public function create_export_wishlist_file(){
+        if (isset($_GET['export']) && $_GET['export'] == 'true') {
+//            $data_header = $this->get_columns();
+//            unset($data_header['wc_actions']);
+//            $data_set = [];
+//            foreach($this->items as $item) {
+//                ob_start();
+//                $this->column_default($item, 'product');
+//                $title = wp_strip_all_tags(str_replace('<br>', "\n", ob_get_clean()));
+//
+//                ob_start();
+//                $this->column_default($item, 'parent');
+//                $parent = wp_strip_all_tags(ob_get_clean());
+//
+//                ob_start();
+//                $this->column_default($item, 'stock_status');
+//                $stock_status = wp_strip_all_tags(ob_get_clean());
+//
+//                ob_start();
+//                $this->column_default($item, 'stock_level');
+//                $stock_level = ob_get_clean();
+//
+//                $data = [$title, $parent, $stock_level, $stock_status];
+//                array_push($data_set, $data);
+//            }
+//            ob_start();
+//            $stream = fopen('php://output' ,'w');
+//            fputs($stream, ( chr(0xEF) . chr(0xBB) . chr(0xBF) ) );
+//            fputcsv($stream, array_values($data_header));
+//            foreach ($data_set as $data ) {
+//                fputcsv($stream, array_values($data));
+//            }
+//            $csv = ob_get_clean();
+//            fclose($stream);
+//            ob_end_clean();
+//
+//            $time = current_time('mysql');
+//            header("Content-type: text/csv");
+//            header("Content-Disposition: attachment; filename=庫存{$time}.csv");
+//            header("Pragma: no-cache");
+//            header("Expires: 0");
+//
+//            echo $csv;
+//            exit;
+        }
+    }
+    public function customer_post_taxonomy(){
+        register_taxonomy( 'filter-category', 'product', array(
+            'label' => '詳細資訊分類', 'hierarchical' => true, 'meta_box_cb'=> false,
+        ));
+    }
+    public function add_meta_boxes(){
+        add_meta_box('product-filter-category','商品詳細資訊分類',[$this,'prodcut_filter_category'],'product','normal','core');
+    }
+    public function prodcut_filter_category(){
+        global $post;
+        $product_terms = wp_get_post_terms($post->ID,'filter-category',array( 'fields' => 'ids' ));
+        $parent_terms = get_terms( 'filter-category', array( 'parent' => 0, 'orderby'  => 'term_order', 'order' => 'ASC', 'hide_empty' => false ) );
+        foreach ($parent_terms as $parent){
+    ?>
+        <fieldset>
+            <p class="form-field">
+                <lable for="<?=$parent->slug?>"><?=$parent->name?></lable>
+                <select id="<?=$parent->slug?>" name="filter_category[]">
+                    <option value="">請選擇</option>
+                    <?php
+                        $children_terms = get_terms( 'filter-category', array( 'parent' => $parent->term_id, 'orderby'  => 'term_order', 'order' => 'ASC', 'hide_empty' => false ) );
+                        foreach ($children_terms as $children){
+                    ?>
+                        <option value="<?=$children->term_id?>" <?=(in_array($children->term_id,$product_terms))?'selected':''?>><?=$children->name?></option>
+                    <?php }?>
+                </select>
+            </p>
+        </fieldset>
+    <?php
+        }
+    }
+    public function save_data_for_custome_data($post_id, $post ){
+        if(isset($_POST['filter_category'])){
+            wp_set_post_terms($post_id,$_POST['filter_category'],'filter-category');
+        }
+    }
+    public function add_export_form_wishlist(){
+    ?>
+        <a href="?export=true" target="_blank" class="wishlist-export" id="wishlist-export-btn">匯出</a>
+    <?php
+    }
+
 
 
     public function remove_admin_bar_wordpress_logo( $wp_admin_bar ) {

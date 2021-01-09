@@ -8,3 +8,4 @@
 .idea/inspectionProfiles/Project_Default.xml
 .idea/jsLinters/jshint.xml
 wp-content/uploads/*
+.idea/php.xml
