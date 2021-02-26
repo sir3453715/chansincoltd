@@ -74,50 +74,57 @@ class customCustom
         add_action('yith_wcwl_before_wishlist_form',[$this,'create_export_wishlist_file']);//產生匯出檔案
 
     }
-    public function create_export_wishlist_file(){
-        if (isset($_GET['export']) && $_GET['export'] == 'true') {
-//            $data_header = $this->get_columns();
-//            unset($data_header['wc_actions']);
-//            $data_set = [];
-//            foreach($this->items as $item) {
-//                ob_start();
-//                $this->column_default($item, 'product');
-//                $title = wp_strip_all_tags(str_replace('<br>', "\n", ob_get_clean()));
-//
-//                ob_start();
-//                $this->column_default($item, 'parent');
-//                $parent = wp_strip_all_tags(ob_get_clean());
-//
-//                ob_start();
-//                $this->column_default($item, 'stock_status');
-//                $stock_status = wp_strip_all_tags(ob_get_clean());
-//
-//                ob_start();
-//                $this->column_default($item, 'stock_level');
-//                $stock_level = ob_get_clean();
-//
-//                $data = [$title, $parent, $stock_level, $stock_status];
-//                array_push($data_set, $data);
-//            }
-//            ob_start();
-//            $stream = fopen('php://output' ,'w');
-//            fputs($stream, ( chr(0xEF) . chr(0xBB) . chr(0xBF) ) );
-//            fputcsv($stream, array_values($data_header));
-//            foreach ($data_set as $data ) {
-//                fputcsv($stream, array_values($data));
-//            }
-//            $csv = ob_get_clean();
-//            fclose($stream);
-//            ob_end_clean();
-//
-//            $time = current_time('mysql');
-//            header("Content-type: text/csv");
-//            header("Content-Disposition: attachment; filename=庫存{$time}.csv");
-//            header("Pragma: no-cache");
-//            header("Expires: 0");
-//
-//            echo $csv;
-//            exit;
+    public function create_export_wishlist_file($wishlist){
+        if (isset($_POST['export']) && $_POST['export'] == 'true') {
+            ob_start();
+            $wishlist_items = $wishlist->get_items();
+            $data_header = [
+                'product_name'=>'產品名稱',
+                'product_material'=>'材質',
+                'product_diameter'=>'尺寸',
+                'product_color'=>'顏色',
+                'product_num'=>'數量(ex:100/月)',
+            ];
+            $data_set = array();
+            $data_terms = array();
+            foreach ( $wishlist_items as $item ) {
+                global $product;
+                $product = $item->get_product();
+                $product_terms = get_the_terms($product->get_id(), 'filter-category');
+                foreach ($product_terms as $term) {
+                    $parent_term = get_term($term->parent);
+                    $data_terms[$product->get_id()][$parent_term->slug] = $term->name;
+                }
+                ob_start();
+                $data = [
+                    'product_name' => $product->get_title(),
+                    'product_material' => $data_terms[$product->get_id()]['material'],
+                    'product_diameter' => $data_terms[$product->get_id()]['diameter'],
+                    'product_color' => $data_terms[$product->get_id()]['color'],
+                    'product_num' => '數量(ex:100/月)',
+                ];
+                ob_get_clean();
+                array_push($data_set, $data);
+            }
+            ob_start();
+            $stream = fopen('php://output' ,'w');
+            fputs($stream, ( chr(0xEF) . chr(0xBB) . chr(0xBF) ) );
+            fputcsv($stream, array_values($data_header));
+            foreach ($data_set as $data ) {
+                fputcsv($stream, array_values($data));
+            }
+            $csv = ob_get_clean();
+            fclose($stream);
+            ob_end_clean();
+
+            $time = date('Y-m-d');
+            header("Content-type: text/csv");
+            header("Content-Disposition: attachment; filename= 願望清單{$time}.csv");
+            header("Pragma: no-cache");
+            header("Expires: 0");
+
+            echo $csv;
+            exit;
         }
     }
     public function customer_post_taxonomy(){
@@ -158,7 +165,11 @@ class customCustom
     }
     public function add_export_form_wishlist(){
     ?>
-        <a href="?export=true" target="_blank" class="wishlist-export" id="wishlist-export-btn">匯出</a>
+
+        <form action="" method="post">
+            <input type="hidden" name="export" value="true">
+            <input type="submit" value="匯出">
+        </form>
     <?php
     }
 
