@@ -70,11 +70,21 @@ class customCustom
          * Other
          */
 
-        add_action('yith_wcwl_before_wishlist_form',[$this,'add_export_form_wishlist']);//前台增加匯出按鈕
         add_action('init',[$this,'create_export_wishlist_file']);//產生匯出檔案
+        add_action('init',[$this,'remove_all_wishlist']);//清除所有願望清單
+        add_filter( 'yith_wcwl_is_wishlist_responsive', '__return_false' );//取消手機板願望清單模板
 
     }
-    public function create_export_wishlist_file($wishlist){
+    public function remove_all_wishlist(){
+        if (isset($_POST['clear']) && $_POST['clear'] == 'wishlist-clear' && isset($_POST['flag']) && $_POST['flag'] == 'true') {
+           $wishlist_products = YITH_WCWL()->get_products(['wishlist_id'=>'all']);
+           foreach ($wishlist_products as $wishlist_product){
+               YITH_WCWL()->details['remove_from_wishlist'] = $wishlist_product['prod_id'];
+               YITH_WCWL()->remove();
+           }
+        }
+    }
+    public function create_export_wishlist_file(){
         if (isset($_POST['export']) && $_POST['export'] == 'wishlist-true' && isset($_POST['product_ids']) && $_POST['product_ids'] != '') {
             $product_ids = json_decode($_POST['product_ids']);
             ob_start();
