@@ -70,7 +70,7 @@ class customCustom
          * Other
          */
 
-        add_action('yith_wcwl_before_wishlist',[$this,'add_export_form_wishlist']);//前台增加匯出按鈕
+        add_action('yith_wcwl_before_wishlist_form',[$this,'add_export_form_wishlist']);//前台增加匯出按鈕
         add_action('init',[$this,'create_export_wishlist_file']);//產生匯出檔案
 
     }
