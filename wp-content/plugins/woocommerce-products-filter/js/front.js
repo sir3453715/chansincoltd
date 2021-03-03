@@ -719,7 +719,7 @@ function woof_draw_products_top_panel() {
 
     panel.html('');
     if (Object.keys(woof_current_values).length > 0) {
-	panel.show();
+	// panel.show();
 	panel.html('<ul></ul>');
 	var is_price_in = false;
 	//lets show this on the panel
