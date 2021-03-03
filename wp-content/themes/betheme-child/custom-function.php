@@ -74,6 +74,15 @@ class customCustom
         add_action('init',[$this,'remove_all_wishlist']);//清除所有願望清單
         add_filter( 'yith_wcwl_is_wishlist_responsive', '__return_false' );//取消手機板願望清單模板
 
+        add_action('woof_products_top_panel_content',[$this,'get_term_description'],99);//取得分類簡介
+
+    }
+    public function get_term_description(){
+        $term_slug = $_GET['product_cat'];
+        if($term_slug){
+            $term = get_term_by('slug',$term_slug,'product_cat');
+            echo $term->description;
+        }
     }
     public function remove_all_wishlist(){
         if (isset($_POST['clear']) && $_POST['clear'] == 'wishlist-clear' && isset($_POST['flag']) && $_POST['flag'] == 'true') {
